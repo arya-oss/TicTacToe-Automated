@@ -48,6 +48,12 @@ class Game:
     	return 0
     def get_cell_value(self,pos):
         return self.board[pos]
+
+    def is_moved(self):
+        for cell in self.board:
+            if cell != 0:
+                return True
+        return False
         
 def min_max_move(instance, marker):
 	bestmove = None
@@ -81,19 +87,33 @@ def min_max_move(instance, marker):
 
 
 
-positions = [ (68, 443), (300, 443), (531, 443), (68, 674), (300, 674), (531, 674), (68, 907), (300, 907), (531,907)]
+positions = [(52, 513), (292, 513), (530, 513), (55, 757), (298, 757), (540, 757), (52, 992), (294, 992), (533, 992)]
 
 import cv2
 from os import system
 from random import randint
 from time import sleep
 
+## Computer is 'X' <-> 2 and mobile is 'O' <-> 1
+
 game = Game()
+
 pos = randint(0,8)
-system("adb shell input tap "+str(positions[pos][0])+" "+str(positions[pos][1]))
-# print "adb shell input tap",str(positions[pos][0]), str(positions[pos][1])
+
+system("adb shell screencap -p /sdcard/tictac.png")
+system("adb pull /sdcard/tictac.png")
+img = cv2.imread('tictac.png')
+
+for i,v in enumerate(positions):
+    if game.get_cell_value(i) == 0 and img[v[1]][v[0]][2] == 248:
+        game.mark(i, 1)
+    elif game.get_cell_value(i) == 0 and img[v[1]][v[0]][2] == 105:
+        game.mark(i, 2)
+
+if game.is_moved() == False:
+    system("adb shell input tap "+str(positions[pos][0])+" "+str(positions[pos][1]))
+
 for k in range(0,4):
-    # print game.board
     system("adb shell screencap -p /sdcard/tictac.png")
     system("adb pull /sdcard/tictac.png")
     img = cv2.imread('tictac.png')
